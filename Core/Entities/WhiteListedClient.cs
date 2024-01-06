@@ -7,10 +7,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Core.Entities
 {
-    public class Tenant
+    public class WhiteListedClient
     {
         [Key]
-        public int Id { get; set; }
+        [ForeignKey("Client")]
+        public int ClientId { get; set; }
+
+        public Client Client { get; set; }
         public bool IsWhitelisted { get; set; }
     }
 }

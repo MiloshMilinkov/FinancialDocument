@@ -8,6 +8,6 @@ namespace Core.Interfaces
 {
     public interface ICompanyRepository
     {
-        Task<Company> GetCompanyByClientVAT(string clientVAT);
+        Task<Company> GetCompanyByClientVATAsync(string clientVAT);
     }
 }

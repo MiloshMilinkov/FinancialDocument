@@ -8,6 +8,6 @@ namespace Core.Interfaces
 {
     public interface ITenantRepository
     {
-       bool IsTenantWhitelisted(Guid tenantId);
+       Task<bool> IsTenantWhitelistedAsync(int tenantId);
     }
 }

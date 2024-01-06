@@ -2,16 +2,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Core.Entities
 {
     public class FinancialDocument
     {
-        public Guid TenantId { get; set; }
-        public Guid DocumentId { get; set; }
+        [Key]
+        public int Id { get; set; }
+        public int TenantId { get; set; }
         public string AccountNumber { get; set; }
         public decimal Balance { get; set; }
         public string Currency { get; set; }
-        public List<Transaction> Transactions { get; set; }
+        public ICollection<Transaction> Transactions { get; set; }
+
+        [ForeignKey("TenantId")]
+        public Tenant Tenant { get; set; }
     }
 }

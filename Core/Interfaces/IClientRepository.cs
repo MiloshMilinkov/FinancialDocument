@@ -8,6 +8,7 @@ namespace Core.Interfaces
 {
     public interface IClientRepository
     {
-        Task<Client>  GetClientDetailsIfWhitelisted(Guid tenantId, Guid documentId);
+        Task<Client> GetClientAsync(int tenantId, int documentId);
+        Task<bool> IsClientIdWhitelistedAsync(int clientId);
     }
 }

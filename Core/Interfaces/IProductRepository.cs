@@ -8,6 +8,6 @@ namespace Core.Interfaces
 {
     public interface IProductRepository
     {
-        bool IsProductSupported(string productCode);
+        Task<bool> IsProductSupportedAsync(string productCode);
     }
 }

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -7,9 +9,13 @@ namespace Core.Entities
 {
     public class Client
     {
-        public Guid TenantId { get; set; }
-        public Guid DocumentId { get; set; }
-        public Guid ClientId { get; set; }
+        [Key]
+        public int Id { get; set; }
+        public int TenantId { get; set; }
+        public int DocumentId { get; set; }  
         public string ClientVAT { get; set; }
+
+        [ForeignKey("TenantId")]
+        public Tenant Tenant { get; set; }
     }
 }

@@ -14,6 +14,11 @@ namespace Infrastructure.Data
     {
         public DbSet<Product> Products { get; set; }
         public DbSet<Tenant> Tenants { get; set; }
+        public DbSet<Client> Clients { get; set; }
+        public DbSet<WhiteListedClient> WhiteListedClients { get; set; }
+        public DbSet<Company> Companies { get; set; }
+        public DbSet<FinancialDocument> FinancialDocuments { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -32,14 +37,6 @@ namespace Infrastructure.Data
                     }
                 }
             }
-            //modelBuilder.Entity<Product>().HasData(ReadJson<Product>("DataSeed/products.json"));
-            //modelBuilder.Entity<Tenant>().HasData(ReadJson<Tenant>("DataSeed/tenants.json"));
         }
-
-    private List<T> ReadJson<T>(string filePath)
-    {
-        var jsonData = System.IO.File.ReadAllText(filePath);
-        return JsonSerializer.Deserialize<List<T>>(jsonData);
-    }
     }
 }

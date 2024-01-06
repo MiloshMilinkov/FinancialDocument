@@ -1,0 +1,20 @@
+[
+    {
+        "Id": 1,
+        "TenantId": 1,
+        "DocumentId": 101,
+        "ClientVAT": "VAT123"
+    },
+    {
+        "Id": 2,
+        "TenantId": 1,
+        "DocumentId": 102,
+        "ClientVAT": "VAT456"
+    },
+    {
+        "Id": 3,
+        "TenantId": 2,
+        "DocumentId": 103,
+        "ClientVAT": "VAT789"
+    }
+]

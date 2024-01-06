@@ -4,10 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Core.Interfaces;
 using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repository
 {
-    public class TenantRepository : ITenantRepository
+    public class TenantRepository  : ITenantRepository
     {
         private readonly AppDbContext _context;
 
@@ -16,9 +17,9 @@ namespace Infrastructure.Repository
             _context = context;
         }
 
-        public bool IsTenantWhitelisted(Guid tenantId)
+        public async Task<bool> IsTenantWhitelistedAsync(int tenantId)
         {
-            return _context.Tenants.Any(t => t.TenantId == tenantId && t.IsWhitelisted);
+            return await _context.Tenants.AnyAsync(t => t.Id == tenantId && t.IsWhitelisted);
         }
     }
 }

@@ -1,4 +1,14 @@
 [
-    { "TenantId": "guid-1", "IsWhitelisted": true },
-    { "TenantId": "guid-2", "IsWhitelisted": false }
+    {
+        "Id": 1,
+        "IsWhitelisted": true
+    },
+    {
+        "Id": 2,
+        "IsWhitelisted": false
+    },
+    {
+        "Id": 3,
+        "IsWhitelisted": true
+    }
 ]
