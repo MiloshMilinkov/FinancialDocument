@@ -1,5 +1,12 @@
 [
-    { "ProductCode": "ProductA", "IsSupported": true },
-    { "ProductCode": "ProductB", "IsSupported": true },
-    { "ProductCode": "ProductC", "IsSupported": false }
+    {
+        "Id": 1,
+        "ProductCode": "ProductA",
+        "IsSupported": true
+    },
+    {
+        "Id": 2,
+        "ProductCode": "ProductB",
+        "IsSupported": true
+    }
 ]

@@ -13,6 +13,6 @@ namespace Core.Entities
         public int Id { get; set; }
         public string ClientVAT { get; set; }
         public string RegistrationNumber { get; set; }
-        public string CompanyType { get; set; }  // "small", "medium", "large"
+        public string CompanyType { get; set; }  
     }
 }

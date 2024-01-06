@@ -1,0 +1,20 @@
+[
+    {
+        "Id": 1,
+        "ClientVAT": "VAT123",
+        "RegistrationNumber": "Reg1001",
+        "CompanyType": "large"
+    },
+    {
+        "Id": 2,
+        "ClientVAT": "VAT456",
+        "RegistrationNumber": "Reg1002",
+        "CompanyType": "medium"
+    },
+    {
+        "Id": 3,
+        "ClientVAT": "VAT789",
+        "RegistrationNumber": "Reg1003",
+        "CompanyType": "medium"
+    }
+]
