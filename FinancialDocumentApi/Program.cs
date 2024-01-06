@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Core.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Repository;
@@ -18,6 +19,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>{
         options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         options.EnableSensitiveDataLogging();
 });
+builder.Services.AddControllers().AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
 
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
