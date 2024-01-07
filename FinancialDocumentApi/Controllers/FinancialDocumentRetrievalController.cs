@@ -7,6 +7,7 @@ using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
 using FinancialDocumentApi.DTOs;
+using FinancialDocumentApi.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -15,32 +16,32 @@ namespace FinancialDocumentApi.Controllers
     [Route("[controller]")]
     public class FinancialDocumentRetrievalController : Controller
     {
-        private readonly IProductRepository _productRepository;
         private readonly ITenantRepository _tenantRepository;
-        private readonly IClientRepository _clientRepository;
         private readonly ICompanyRepository _companyRepository;
-        private readonly IFinancialDocumentRepository _financialDocumentRepository;
+        private readonly IFinancialDocumentService _financialDocumentService;
+        private readonly IProductValidationService _productValidationService;
+        private readonly IClientService _clientService;
         private readonly IMapper _mapper;
         public FinancialDocumentRetrievalController(
-            IProductRepository productRepository,
             ITenantRepository tenantRepository,
-            IClientRepository clientRepository,
             ICompanyRepository companyRepository,
-            IFinancialDocumentRepository financialDocumentRepository,
+            IFinancialDocumentService financialDocumentService,
+            IProductValidationService productValidationService,
+            IClientService clientService,
             IMapper mapper)
         {
-            _productRepository = productRepository;
             _tenantRepository = tenantRepository;
-            _clientRepository = clientRepository;
             _companyRepository = companyRepository;
-            _financialDocumentRepository = financialDocumentRepository;
+            _financialDocumentService = financialDocumentService;
+            _productValidationService = productValidationService;
+            _clientService = clientService;
              _mapper=mapper;
         }
         [HttpGet("Retrieve")]
         public async Task<IActionResult> RetrieveDocument(string productCode, int tenantId, int documentId)
         {
             // Validate Product Code
-            if (!await _productRepository.IsProductSupportedAsync(productCode))
+            if (!await _productValidationService.IsProductSupportedAsync(productCode))
             {
                 return StatusCode(StatusCodes.Status403Forbidden, "Product code not supported.");
             }
@@ -52,8 +53,8 @@ namespace FinancialDocumentApi.Controllers
             }
 
             //Client ID Whitelisting
-            var client = await _clientRepository.GetClientAsync(tenantId, documentId);
-            if (client == null || !await _clientRepository.IsClientIdWhitelistedAsync(client.Id))
+            var client = await _clientService.GetClientAsync(tenantId, documentId);
+            if (client == null || !await _clientService.IsClientIdWhitelistedAsync(client.Id))
             {
                 return StatusCode(StatusCodes.Status403Forbidden, "Client not whitelisted.");
             }
@@ -65,42 +66,17 @@ namespace FinancialDocumentApi.Controllers
                 return StatusCode(StatusCodes.Status403Forbidden, "Company type check failed.");
             }
 
-            //Retrieve Financial Document
-            var financialDocument = await _financialDocumentRepository.GetFinancialDocumentAsync(tenantId, documentId);
+            //Retrieve Financial Document, Anonymization adn DTO mapping
+            var financialDocument = await _financialDocumentService.RetrieveAndAnonymizeDocumentAsync(tenantId, documentId, productCode);
             if (financialDocument == null)
             {
                 return NotFound("Financial document not found.");
             }
 
-            // Financial Data Anonymization
-            var anonymizedDocument = await _financialDocumentRepository.AnonymizeFinancialDocumentAsync(financialDocument, productCode);
-            //mapping
-            var financialDocumentDTO = _mapper.Map<FinancialDocumentDTO>(anonymizedDocument);
-
-            // var financialDocumentDTO = new FinancialDocumentDTO
-            // {
-            //     AccountNumber = anonymizedDocument.AccountNumber,
-            //     Balance = anonymizedDocument.Balance,
-            //     Currency = anonymizedDocument.Currency,
-            //     Transactions = anonymizedDocument.Transactions.Select(t => new TransactionDTO 
-            //     {
-            //         TransactionId = t.TransactionId,
-            //         Amount = t.Amount,
-            //         Date = t.Date,
-            //         Description = t.Description,
-            //         Category = t.Category
-            //     }),
-            //     Tenant = new TenantDTO
-            //     {
-            //         Id = anonymizedDocument.Tenant.Id,
-            //         IsWhitelisted = anonymizedDocument.Tenant.IsWhitelisted
-            //     }
-            // };
-
             // Step 9: Return Response
             var response = new
             {
-                data = financialDocumentDTO, // Assuming it's serialized and anonymized
+                data = financialDocument, //will need to find a way to see if it hashed and anonymized
                 company = new 
                 {
                     registrationNumber = company.RegistrationNumber,

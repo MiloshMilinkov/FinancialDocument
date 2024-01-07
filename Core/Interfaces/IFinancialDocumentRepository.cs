@@ -9,6 +9,5 @@ namespace Core.Interfaces
     public interface IFinancialDocumentRepository
     {
         Task<FinancialDocument> GetFinancialDocumentAsync(int tenantId, int documentId);
-        Task<FinancialDocument> AnonymizeFinancialDocumentAsync(FinancialDocument document, string productCode);
     }
 }
