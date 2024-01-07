@@ -25,24 +25,21 @@ builder.Services.AddControllers().AddJsonOptions(x =>
 
 
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
-
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
-
 builder.Services.AddScoped<IFinancialDocumentRepository, FinancialDocumentRepository>();
-
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
-
 builder.Services.AddScoped<ITenantRepository, TenantRepository>();
 
 builder.Services.AddScoped<IFinancialDocumentService, FinancialDocumentService>();
-
 builder.Services.AddScoped<IProductValidationService, ProductValidationService>();
-
 builder.Services.AddScoped<IClientService, ClientService>();
+builder.Services.AddScoped<ITenantService, TenantService>();
+builder.Services.AddScoped<ICompanyService, CompanyService>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
+
 using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
 var context = services.GetRequiredService<AppDbContext>();

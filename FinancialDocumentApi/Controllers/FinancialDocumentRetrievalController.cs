@@ -16,22 +16,22 @@ namespace FinancialDocumentApi.Controllers
     [Route("[controller]")]
     public class FinancialDocumentRetrievalController : Controller
     {
-        private readonly ITenantRepository _tenantRepository;
-        private readonly ICompanyRepository _companyRepository;
+        private readonly ICompanyService _companyService;
+        private readonly ITenantService _tenantService;
         private readonly IFinancialDocumentService _financialDocumentService;
         private readonly IProductValidationService _productValidationService;
         private readonly IClientService _clientService;
         private readonly IMapper _mapper;
         public FinancialDocumentRetrievalController(
-            ITenantRepository tenantRepository,
-            ICompanyRepository companyRepository,
             IFinancialDocumentService financialDocumentService,
             IProductValidationService productValidationService,
+            ICompanyService companyService,
+            ITenantService tenantService,
             IClientService clientService,
             IMapper mapper)
         {
-            _tenantRepository = tenantRepository;
-            _companyRepository = companyRepository;
+            _tenantService = tenantService;
+            _companyService = companyService;
             _financialDocumentService = financialDocumentService;
             _productValidationService = productValidationService;
             _clientService = clientService;
@@ -47,7 +47,7 @@ namespace FinancialDocumentApi.Controllers
             }
 
             //Tenant ID Whitelisting
-            if (!await _tenantRepository.IsTenantWhitelistedAsync(tenantId))
+            if (!await _tenantService.IsTenantWhitelistedAsync(tenantId))
             {
                 return StatusCode(StatusCodes.Status403Forbidden, "Tenant not whitelisted.");
             }
@@ -60,7 +60,7 @@ namespace FinancialDocumentApi.Controllers
             }
 
             //Fetch Additional Client Information
-            var company = await _companyRepository.GetCompanyByClientVATAsync(client.ClientVAT);
+            var company = await _companyService.GetCompanyByClientVATAsync(client.ClientVAT);
             if (company == null || company.CompanyType == "small")
             {
                 return StatusCode(StatusCodes.Status403Forbidden, "Company type check failed.");
