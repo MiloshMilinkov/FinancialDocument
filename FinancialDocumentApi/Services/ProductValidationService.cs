@@ -17,7 +17,12 @@ namespace FinancialDocumentApi.Services
 
         public async Task<bool> IsProductSupportedAsync(string productCode)
         {
-            return await _productRepository.IsProductSupportedAsync(productCode);
+            if(string.IsNullOrWhiteSpace(productCode)){
+                return false;
+            }
+            var product = await _productRepository.GetProductByCodeAsync(productCode);
+
+            return product !=null && product.IsSupported;
         }
     }
 }

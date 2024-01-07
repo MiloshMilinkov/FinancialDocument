@@ -16,7 +16,13 @@ namespace FinancialDocumentApi.Services
         }
         public async Task<bool> IsTenantWhitelistedAsync(int tenantId)
         {
-            return await _tenantRepository.IsTenantWhitelistedAsync(tenantId);
+            if(string.IsNullOrEmpty(tenantId.ToString())){
+                return false;
+            }
+            
+            var tenant = await _tenantRepository.GetTenantByIdAsync(tenantId);
+
+            return tenant !=null && tenant.IsWhitelisted;
         }
     }
 }
