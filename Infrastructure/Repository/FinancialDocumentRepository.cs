@@ -24,6 +24,7 @@ namespace Infrastructure.Repository
                                 .Include(fd => fd.Transactions)
                                 .Include(fd => fd.Tenant)
                                 .Include(fd => fd.Transactions)
+                                .Include(fd => fd.Product)
                                 .FirstOrDefaultAsync(fd => fd.TenantId == tenantId && fd.Id == documentId);
         }
     }

@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
 using FinancialDocumentApi.DTOs;
+using Newtonsoft.Json.Linq;
 
 namespace FinancialDocumentApi.Services
 {
@@ -14,6 +16,8 @@ namespace FinancialDocumentApi.Services
         private readonly IFinancialDocumentRepository _financialDocumentRepository;
         private readonly IMapper _mapper;
 
+        //Added comments so i dont get lost in versioning(2nd logic)(REMOVE WHEN DONE!!!)
+        // Injecting the require repo and automapper
         public FinancialDocumentService(IFinancialDocumentRepository financialDocumentRepository, IMapper mapper)
         {
             _financialDocumentRepository = financialDocumentRepository;
@@ -21,22 +25,104 @@ namespace FinancialDocumentApi.Services
         }
         public async Task<FinancialDocumentDTO?> RetrieveAndAnonymizeDocumentAsync(int tenantId, int documentId, string productCode)
         {
+            // Retrieve the financial document based on tenantId and documentId.
+            // If the document is not found or product code does not match, return null(test error handling).
             var financialDocument = await _financialDocumentRepository.GetFinancialDocumentAsync(tenantId, documentId);
-            if (financialDocument == null)
+            if (financialDocument == null || financialDocument.Product?.ProductCode != productCode)
                 return null;
 
-            var anonymizedDocument = AnonymizeDocument(financialDocument, productCode);
-            return _mapper.Map<FinancialDocumentDTO>(anonymizedDocument);
-        }
-        private FinancialDocument AnonymizeDocument(FinancialDocument document, string productCode)
-        {
-                document.AccountNumber = HashValue(document.AccountNumber); // Example of anonymization
-                foreach( var tran in document.Transactions){
-                    tran.TransactionId = "####";
-                }
-                return document;
+            // Parse the document template to a JObject.
+            var templateJson = financialDocument.Product?.FinancialDocumentTemplate != null 
+                    ? JObject.Parse(financialDocument.Product.FinancialDocumentTemplate)
+                    : new JObject();
+            return _mapper.Map<FinancialDocumentDTO>(ConstructDTO(financialDocument, templateJson));
         }
 
+        private FinancialDocumentDTO ConstructDTO(FinancialDocument document, JObject templateJson)
+        {
+            var dto = new FinancialDocumentDTO();
+            dto.AccountNumber = ConstructAccountNumber(document, templateJson);
+            dto.Balance = ConstructBalance(document, templateJson);
+            dto.Transactions = ConstructTransactions(document, templateJson);
+            return dto;
+        }
+
+        // Constructs the account number field for the DTO.
+        private string?  ConstructAccountNumber(FinancialDocument document, JObject templateJson)
+        {
+            if (ShouldIncludeField(templateJson, "AccountNumber"))
+            {
+                var anonymizationType = GetAnonymizationType(templateJson, "AccountNumber");
+                return ApplyAnonymization(document.AccountNumber, anonymizationType);
+            }
+            return null;
+        }
+
+        // Constructs the Balances field for the DTO.
+        private decimal? ConstructBalance(FinancialDocument document, JObject templateJson)
+        {
+            if (ShouldIncludeField(templateJson, "Balance"))
+            {
+                var anonymizationType = GetAnonymizationType(templateJson, "Balance");
+                var balance = ApplyAnonymization(document.Balance.ToString(), anonymizationType);
+                return decimal.Parse(balance); // Add error handling for parsing
+            }
+            return null;
+        }
+
+        // Constructs the Transactions field for the DTO.
+        private IEnumerable<TransactionDTO> ConstructTransactions(FinancialDocument document, JObject templateJson)
+        {
+            if (ShouldIncludeField(templateJson, "Transactions") && document.Transactions != null)
+            {
+                return document.Transactions.Select(transaction =>
+                {
+                    var transactionDto = _mapper.Map<TransactionDTO>(transaction);
+                    var anonymizationType = GetAnonymizationType(templateJson, "TransactionId");
+                    transactionDto.TransactionId = ApplyAnonymization(transaction.TransactionId, anonymizationType);
+                    return transactionDto;
+                }).ToList();
+            }
+            return Enumerable.Empty<TransactionDTO>();
+        }
+
+        // Constructs the ....(See if more fields are needed,follow the logic from above.)
+        private string ApplyAnonymization(string value, string anonymizationType)
+        {
+            return anonymizationType switch
+            {
+                "hash" => HashValue(value),
+                "mask" => "####",
+                _ => value,
+            };
+        }
+
+        //Get the anonymize type from the json we seeded (Find a better way if possible )
+        private string GetAnonymizationType(JObject template, string fieldName)
+        {
+            return template["fields"]?[fieldName]?.Value<string>("anonymize");
+        }
+
+        //Retrive info of what cield should be incldued or not
+        public bool ShouldIncludeField(JObject template, string fieldName)
+        {
+            var fieldTemplate = template["fields"]?[fieldName];
+            return fieldTemplate != null && fieldTemplate.Value<bool>("include");
+        }
+
+        public bool ShouldAnonymizeField(JObject template, string fieldName, out string anonymizationType)
+        {
+            anonymizationType = null;
+            var fieldTemplate = template["fields"]?[fieldName];
+            if (fieldTemplate != null && fieldTemplate.Value<bool>("include"))
+            {
+                anonymizationType = fieldTemplate.Value<string>("anonymize");
+                return !string.IsNullOrEmpty(anonymizationType);
+            }
+
+            return false;
+        }
+        
         private string HashValue(string value)
         {
             using (var sha256 = System.Security.Cryptography.SHA256.Create())

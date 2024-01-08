@@ -2,8 +2,10 @@
     {
         "Id": 101,
         "TenantId": 1,
+        "ProductId": 1,
         "AccountNumber": "95867648",
         "Balance": 42331.12,
         "Currency": "EUR"
+        
     }
 ]

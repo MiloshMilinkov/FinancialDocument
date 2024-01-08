@@ -2,11 +2,15 @@
     {
         "Id": 1,
         "ProductCode": "ProductA",
-        "IsSupported": true
+        "IsSupported": true,
+        "FinancialDocumentTemplate":  
+        "{\"fields\": {\"AccountNumber\": {\"include\": true, \"anonymize\": \"hash\"}, \"Balance\": {\"include\": true, \"anonymize\": \"none\"}, \"Transactions\": {\"include\": true, \"anonymize\": \"none\"} }}"
     },
     {
         "Id": 2,
         "ProductCode": "ProductB",
-        "IsSupported": true
+        "IsSupported": true,
+        "FinancialDocumentTemplate": 
+        "{\"fields\": {\"AccountNumber\": {\"include\": true, \"anonymize\": \"hash\"}, \"Balance\": {\"include\": true, \"anonymize\": \"none\"}, \"Transactions\": {\"include\": true, \"anonymize\": \"none\"} }}"
     }
 ]

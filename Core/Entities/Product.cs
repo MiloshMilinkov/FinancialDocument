@@ -14,5 +14,7 @@ namespace Core.Entities
         [Required]
         public string ProductCode { get; set; }
         public bool IsSupported { get; set; }
+
+        public string FinancialDocumentTemplate { get; set; }
     }
 }

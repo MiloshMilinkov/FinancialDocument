@@ -37,9 +37,16 @@ namespace FinancialDocumentApi.Controllers
             _clientService = clientService;
              _mapper=mapper;
         }
+        
         [HttpGet("Retrieve")]
         public async Task<IActionResult> RetrieveDocument(string productCode, int tenantId, int documentId)
         {
+            //Invalid Inputs
+            if (string.IsNullOrWhiteSpace(productCode) || tenantId <= 0 || documentId <= 0)
+            {
+                return BadRequest("Invalid input parameters.");
+            }
+
             // Validate Product Code
             if (!await _productValidationService.IsProductSupportedAsync(productCode))
             {
@@ -51,29 +58,25 @@ namespace FinancialDocumentApi.Controllers
             {
                 return StatusCode(StatusCodes.Status403Forbidden, "Tenant not whitelisted.");
             }
-
             //Client ID Whitelisting
             var client = await _clientService.GetClientAsync(tenantId, documentId);
             if (client == null || !await _clientService.IsClientIdWhitelistedAsync(client.Id))
             {
                 return StatusCode(StatusCodes.Status403Forbidden, "Client not whitelisted.");
             }
-
             //Fetch Additional Client Information
             var company = await _companyService.GetCompanyByClientVATAsync(client.ClientVAT);
             if (company == null || company.CompanyType == "small")
             {
                 return StatusCode(StatusCodes.Status403Forbidden, "Company type check failed.");
             }
-
             //Retrieve Financial Document, Anonymization adn DTO mapping
             var financialDocument = await _financialDocumentService.RetrieveAndAnonymizeDocumentAsync(tenantId, documentId, productCode);
             if (financialDocument == null)
             {
                 return NotFound("Financial document not found.");
             }
-
-            // Step 9: Return Response
+            //Return Response
             var response = new
             {
                 data = financialDocument, //will need to find a way to see if it hashed and anonymized
@@ -86,6 +89,5 @@ namespace FinancialDocumentApi.Controllers
 
             return Ok(response);
         }
-        
     }
 }

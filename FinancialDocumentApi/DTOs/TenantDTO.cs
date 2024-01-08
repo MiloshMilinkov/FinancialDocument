@@ -7,7 +7,7 @@ namespace FinancialDocumentApi.DTOs
 {
     public class TenantDTO
     {
-        public int Id { get; set; }
-        public bool IsWhitelisted { get; set; }
+        public int? Id { get; set; }
+        public bool? IsWhitelisted { get; set; }
     }
 }

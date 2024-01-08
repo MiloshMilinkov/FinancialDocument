@@ -12,6 +12,7 @@ namespace Core.Entities
         [Key]
         public int Id { get; set; }
         public int TenantId { get; set; }
+        public int ProductId { get; set; }
         public string AccountNumber { get; set; }
         public decimal Balance { get; set; }
         public string Currency { get; set; }
@@ -19,5 +20,8 @@ namespace Core.Entities
 
         [ForeignKey("TenantId")]
         public Tenant Tenant { get; set; }
+
+        [ForeignKey("ProductId")]
+        public Product Product { get; set; }
     }
 }

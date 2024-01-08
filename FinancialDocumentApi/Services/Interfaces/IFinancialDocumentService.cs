@@ -8,6 +8,6 @@ namespace FinancialDocumentApi.Services
 {
     public interface IFinancialDocumentService
     {
-         Task<FinancialDocumentDTO> RetrieveAndAnonymizeDocumentAsync(int tenantId, int documentId, string productCode);
+         Task<FinancialDocumentDTO?> RetrieveAndAnonymizeDocumentAsync(int tenantId, int documentId, string productCode);
     }
 }

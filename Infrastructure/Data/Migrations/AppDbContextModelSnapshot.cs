@@ -74,10 +74,15 @@ namespace Infrastructure.Data.migrations
                     b.Property<string>("Currency")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("ProductId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("TenantId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
 
                     b.HasIndex("TenantId");
 
@@ -89,6 +94,9 @@ namespace Infrastructure.Data.migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("FinancialDocumentTemplate")
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsSupported")
                         .HasColumnType("INTEGER");
@@ -173,11 +181,19 @@ namespace Infrastructure.Data.migrations
 
             modelBuilder.Entity("Core.Entities.FinancialDocument", b =>
                 {
+                    b.HasOne("Core.Entities.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Core.Entities.Tenant", "Tenant")
                         .WithMany()
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Product");
 
                     b.Navigation("Tenant");
                 });

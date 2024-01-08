@@ -33,7 +33,8 @@ namespace Infrastructure.Data.migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     ProductCode = table.Column<string>(type: "TEXT", nullable: false),
-                    IsSupported = table.Column<bool>(type: "INTEGER", nullable: false)
+                    IsSupported = table.Column<bool>(type: "INTEGER", nullable: false),
+                    FinancialDocumentTemplate = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -81,6 +82,7 @@ namespace Infrastructure.Data.migrations
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     TenantId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ProductId = table.Column<int>(type: "INTEGER", nullable: false),
                     AccountNumber = table.Column<string>(type: "TEXT", nullable: true),
                     Balance = table.Column<double>(type: "REAL", nullable: false),
                     Currency = table.Column<string>(type: "TEXT", nullable: true)
@@ -88,6 +90,12 @@ namespace Infrastructure.Data.migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_FinancialDocuments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_FinancialDocuments_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_FinancialDocuments_Tenants_TenantId",
                         column: x => x.TenantId,
@@ -144,6 +152,11 @@ namespace Infrastructure.Data.migrations
                 column: "TenantId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_FinancialDocuments_ProductId",
+                table: "FinancialDocuments",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_FinancialDocuments_TenantId",
                 table: "FinancialDocuments",
                 column: "TenantId");
@@ -161,9 +174,6 @@ namespace Infrastructure.Data.migrations
                 name: "Companies");
 
             migrationBuilder.DropTable(
-                name: "Products");
-
-            migrationBuilder.DropTable(
                 name: "Transactions");
 
             migrationBuilder.DropTable(
@@ -174,6 +184,9 @@ namespace Infrastructure.Data.migrations
 
             migrationBuilder.DropTable(
                 name: "Clients");
+
+            migrationBuilder.DropTable(
+                name: "Products");
 
             migrationBuilder.DropTable(
                 name: "Tenants");
