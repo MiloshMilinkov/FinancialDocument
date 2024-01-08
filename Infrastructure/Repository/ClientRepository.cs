@@ -23,9 +23,9 @@ namespace Infrastructure.Repository
         return await _context.Clients.FirstOrDefaultAsync(c => c.TenantId == tenantId && c.DocumentId == documentId);
     }
 
-    public async Task<bool> IsClientIdWhitelistedAsync(int clientId)
+    public async Task<bool> IsClientIdWhitelistedAsync(int tenantId, int clientId)
     {
-        return await _context.Clients.AnyAsync(c => c.Id == clientId && _context.Tenants.Any(t => t.Id == c.TenantId && t.IsWhitelisted));
+         return await _context.Clients.AnyAsync(c => c.Id == clientId && c.TenantId == tenantId && c.IsWhitelisted);
     }
 }
 }

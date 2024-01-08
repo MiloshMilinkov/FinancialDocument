@@ -16,14 +16,19 @@ namespace FinancialDocumentApi.Services
         {
             _clientRepository = clientRepository;
         }
-        public async Task<Client> GetClientAsync(int tenantId, int documentId)
+        public async Task<(int ClientId, string ClientVAT)?> GetClientAsync(int tenantId, int documentId)
         {
-            return await _clientRepository.GetClientAsync(tenantId, documentId);
+            var client = await _clientRepository.GetClientAsync(tenantId, documentId);
+            if (client != null)
+            {
+                return (client.Id, client.ClientVAT);
+            }
+            return null;
         }
 
-        public async Task<bool> IsClientIdWhitelistedAsync(int clientId)
+        public async Task<bool> IsClientIdWhitelistedAsync(int tenantId, int clientId)
         {
-            return await _clientRepository.IsClientIdWhitelistedAsync(clientId);
+            return await _clientRepository.IsClientIdWhitelistedAsync(tenantId, clientId);
         }
     }
 }

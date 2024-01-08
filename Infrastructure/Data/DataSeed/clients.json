@@ -3,18 +3,21 @@
         "Id": 1,
         "TenantId": 1,
         "DocumentId": 101,
-        "ClientVAT": "VAT123"
+        "ClientVAT": "VAT123",
+        "IsWhitelisted": true
     },
     {
         "Id": 2,
         "TenantId": 1,
         "DocumentId": 102,
-        "ClientVAT": "VAT456"
+        "ClientVAT": "VAT456",
+        "IsWhitelisted": false
     },
     {
         "Id": 3,
         "TenantId": 2,
         "DocumentId": 103,
-        "ClientVAT": "VAT789"
+        "ClientVAT": "VAT789",
+        "IsWhitelisted": true
     }
 ]

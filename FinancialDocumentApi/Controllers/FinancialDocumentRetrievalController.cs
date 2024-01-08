@@ -42,31 +42,48 @@ namespace FinancialDocumentApi.Controllers
         public async Task<IActionResult> RetrieveDocument(string productCode, int tenantId, int documentId)
         {
             //Invalid Inputs
+            //The task does not require direct validation of valid parameters, 
+            //however, I believe that although each service validates the entity it is linked to, 
+            //if the input parameter does not match the requirements, there is no need for further execution of the program flow.
             if (string.IsNullOrWhiteSpace(productCode) || tenantId <= 0 || documentId <= 0)
             {
                 return BadRequest("Invalid input parameters.");
             }
 
-            // Validate Product Code
+            //1. Validate Product Code
             if (!await _productValidationService.IsProductSupportedAsync(productCode))
             {
                 return StatusCode(StatusCodes.Status403Forbidden, "Product code not supported.");
             }
 
-            //Tenant ID Whitelisting
+            //2. Tenant ID Whitelisting
             if (!await _tenantService.IsTenantWhitelistedAsync(tenantId))
             {
                 return StatusCode(StatusCodes.Status403Forbidden, "Tenant not whitelisted.");
             }
-            //Client ID Whitelisting
+            //3. Client ID Whitelisting
+            //3.1 "The first service accepts TenantId and DocumentId as inputs and returns the corresponding ClientId and ClientVAT"
+            //Returned as stated in the task  and I UNERSTOOD as ClientId and ClientVAT, this does go with the principal of minimal exposure
+            //but i would have preferr ed to have returned the  whole Client object found.
             var client = await _clientService.GetClientAsync(tenantId, documentId);
-            if (client == null || !await _clientService.IsClientIdWhitelistedAsync(client.Id))
+
+            //3.2 Added the response that the desired client was not found, 
+            //this is not required in the task directly, but I consider it a correct check
+            if (client == null){
+                return StatusCode(StatusCodes.Status404NotFound, "Client not found.");
+            }
+            else if(!await _clientService.IsClientIdWhitelistedAsync(tenantId, client.Value.ClientId))
             {
                 return StatusCode(StatusCodes.Status403Forbidden, "Client not whitelisted.");
             }
-            //Fetch Additional Client Information
-            var company = await _companyService.GetCompanyByClientVATAsync(client.ClientVAT);
-            if (company == null || company.CompanyType == "small")
+
+            //4. Fetch Additional Client Information
+             var company = await _companyService.GetCompanyByClientVATAsync(client.Value.ClientVAT);
+            //5. Company Type Check:
+            if (company == null ){
+                return StatusCode(StatusCodes.Status404NotFound, "Company not found.");
+            }
+            else if( company.Value.CompanyType == "small")
             {
                 return StatusCode(StatusCodes.Status403Forbidden, "Company type check failed.");
             }
@@ -82,8 +99,8 @@ namespace FinancialDocumentApi.Controllers
                 data = financialDocument, //will need to find a way to see if it hashed and anonymized
                 company = new 
                 {
-                    registrationNumber = company.RegistrationNumber,
-                    companyType = company.CompanyType
+                    // registrationNumber = company.RegistrationNumber,
+                    // companyType = company.CompanyType
                 }
             };
 

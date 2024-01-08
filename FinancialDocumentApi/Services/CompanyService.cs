@@ -16,9 +16,13 @@ namespace FinancialDocumentApi.Services
             _companyRepository = companyRepository;
         }
 
-        public async Task<Company> GetCompanyByClientVATAsync(string clientVAT)
+        public async Task<(string RegistrationNumber, string CompanyType)?> GetCompanyByClientVATAsync(string clientVAT)
         {
-            return await _companyRepository.GetCompanyByClientVATAsync(clientVAT);
+            var company = await  _companyRepository.GetCompanyByClientVATAsync(clientVAT);
+            if(company != null){
+                return (company.RegistrationNumber, company.CompanyType);
+            }
+            return null;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace FinancialDocumentApi.Services
 {
     public interface IClientService
     {
-        Task<Client> GetClientAsync(int tenantId, int documentId);
-        Task<bool> IsClientIdWhitelistedAsync(int clientId);
+        Task<(int ClientId, string ClientVAT)?> GetClientAsync(int tenantId, int documentId);
+        Task<bool> IsClientIdWhitelistedAsync(int tenantId, int clientId);
     }
 }

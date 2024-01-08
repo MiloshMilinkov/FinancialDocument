@@ -46,12 +46,6 @@ namespace Infrastructure.Data
                 context.FinancialDocuments.AddRange(financialDocuments);
             }
 
-            if(!context.WhiteListedClients.Any()){
-                var whiteListedClientsJson=File.ReadAllText("../Infrastructure/Data/DataSeed/whiteListedClients.json");
-                var whiteListedClients=JsonSerializer.Deserialize<List<WhiteListedClient>>(whiteListedClientsJson);
-                context.WhiteListedClients.AddRange(whiteListedClients);
-            }
-
             if(context.ChangeTracker.HasChanges()){
                 await context.SaveChangesAsync();
             }

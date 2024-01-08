@@ -14,6 +14,8 @@ namespace Core.Entities
         public int TenantId { get; set; }
         public int DocumentId { get; set; }  
         public string ClientVAT { get; set; }
+        
+        public bool IsWhitelisted { get; set; }
 
         [ForeignKey("TenantId")]
         public Tenant Tenant { get; set; }

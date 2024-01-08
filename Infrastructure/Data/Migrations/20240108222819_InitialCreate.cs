@@ -62,7 +62,8 @@ namespace Infrastructure.Data.migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     TenantId = table.Column<int>(type: "INTEGER", nullable: false),
                     DocumentId = table.Column<int>(type: "INTEGER", nullable: false),
-                    ClientVAT = table.Column<string>(type: "TEXT", nullable: true)
+                    ClientVAT = table.Column<string>(type: "TEXT", nullable: true),
+                    IsWhitelisted = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -100,24 +101,6 @@ namespace Infrastructure.Data.migrations
                         name: "FK_FinancialDocuments_Tenants_TenantId",
                         column: x => x.TenantId,
                         principalTable: "Tenants",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "WhiteListedClients",
-                columns: table => new
-                {
-                    ClientId = table.Column<int>(type: "INTEGER", nullable: false),
-                    IsWhitelisted = table.Column<bool>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_WhiteListedClients", x => x.ClientId);
-                    table.ForeignKey(
-                        name: "FK_WhiteListedClients_Clients_ClientId",
-                        column: x => x.ClientId,
-                        principalTable: "Clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -171,19 +154,16 @@ namespace Infrastructure.Data.migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Clients");
+
+            migrationBuilder.DropTable(
                 name: "Companies");
 
             migrationBuilder.DropTable(
                 name: "Transactions");
 
             migrationBuilder.DropTable(
-                name: "WhiteListedClients");
-
-            migrationBuilder.DropTable(
                 name: "FinancialDocuments");
-
-            migrationBuilder.DropTable(
-                name: "Clients");
 
             migrationBuilder.DropTable(
                 name: "Products");

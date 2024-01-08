@@ -9,6 +9,6 @@ namespace Core.Interfaces
     public interface IClientRepository
     {
         Task<Client> GetClientAsync(int tenantId, int documentId);
-        Task<bool> IsClientIdWhitelistedAsync(int clientId);
+        Task<bool> IsClientIdWhitelistedAsync(int tenantId, int clientId);
     }
 }

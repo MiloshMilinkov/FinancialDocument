@@ -15,7 +15,6 @@ namespace Infrastructure.Data
         public DbSet<Product> Products { get; set; }
         public DbSet<Tenant> Tenants { get; set; }
         public DbSet<Client> Clients { get; set; }
-        public DbSet<WhiteListedClient> WhiteListedClients { get; set; }
         public DbSet<Company> Companies { get; set; }
         public DbSet<FinancialDocument> FinancialDocuments { get; set; }
         public DbSet<Transaction> Transactions { get; set; }

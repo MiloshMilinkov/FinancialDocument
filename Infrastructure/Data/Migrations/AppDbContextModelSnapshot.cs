@@ -29,6 +29,9 @@ namespace Infrastructure.Data.migrations
                     b.Property<int>("DocumentId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsWhitelisted")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("TenantId")
                         .HasColumnType("INTEGER");
 
@@ -155,19 +158,6 @@ namespace Infrastructure.Data.migrations
                     b.ToTable("Transactions");
                 });
 
-            modelBuilder.Entity("Core.Entities.WhiteListedClient", b =>
-                {
-                    b.Property<int>("ClientId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("IsWhitelisted")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("ClientId");
-
-                    b.ToTable("WhiteListedClients");
-                });
-
             modelBuilder.Entity("Core.Entities.Client", b =>
                 {
                     b.HasOne("Core.Entities.Tenant", "Tenant")
@@ -207,17 +197,6 @@ namespace Infrastructure.Data.migrations
                         .IsRequired();
 
                     b.Navigation("FinancialDocument");
-                });
-
-            modelBuilder.Entity("Core.Entities.WhiteListedClient", b =>
-                {
-                    b.HasOne("Core.Entities.Client", "Client")
-                        .WithMany()
-                        .HasForeignKey("ClientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Client");
                 });
 
             modelBuilder.Entity("Core.Entities.FinancialDocument", b =>

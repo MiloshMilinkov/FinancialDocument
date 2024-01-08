@@ -8,6 +8,6 @@ namespace FinancialDocumentApi.Services
 {
     public interface ICompanyService
     {
-         Task<Company> GetCompanyByClientVATAsync(string clientVAT);
+         Task<(string RegistrationNumber, string CompanyType)?> GetCompanyByClientVATAsync(string clientVAT);
     }
 }
