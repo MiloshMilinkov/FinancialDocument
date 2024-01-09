@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Core.Interfaces;
 using FinancialDocumentApi.Services;
+using FinancialDocumentApi.Services.Interfaces;
 using Infrastructure.Data;
 using Infrastructure.Repository;
 using Microsoft.EntityFrameworkCore;
@@ -32,7 +33,8 @@ builder.Services.AddScoped<ITenantRepository, TenantRepository>();
 
 builder.Services.AddScoped<IFinancialDocumentService, FinancialDocumentService>();
 builder.Services.AddScoped<IProductValidationService, ProductValidationService>();
-builder.Services.AddScoped<IClientService, ClientService>();
+builder.Services.AddScoped<IIsClientWhiteListedService, IsClientWhiteListedService>();
+builder.Services.AddScoped<IGetClientService, GetClientService>();
 builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddControllers()

@@ -20,21 +20,24 @@ namespace FinancialDocumentApi.Controllers
         private readonly ITenantService _tenantService;
         private readonly IFinancialDocumentService _financialDocumentService;
         private readonly IProductValidationService _productValidationService;
-        private readonly IClientService _clientService;
+        private readonly IIsClientWhiteListedService _isClientWhiteListedService;
+        private readonly IGetClientService _getClientService;
         private readonly IMapper _mapper;
         public FinancialDocumentRetrievalController(
             IFinancialDocumentService financialDocumentService,
             IProductValidationService productValidationService,
             ICompanyService companyService,
             ITenantService tenantService,
-            IClientService clientService,
+            IIsClientWhiteListedService isClientWhiteListedService,
+            IGetClientService getClientService,
             IMapper mapper)
         {
             _tenantService = tenantService;
             _companyService = companyService;
             _financialDocumentService = financialDocumentService;
             _productValidationService = productValidationService;
-            _clientService = clientService;
+            _getClientService = getClientService;
+            _isClientWhiteListedService = isClientWhiteListedService;
              _mapper=mapper;
         }
         
@@ -61,18 +64,20 @@ namespace FinancialDocumentApi.Controllers
             {
                 return StatusCode(StatusCodes.Status403Forbidden, "Tenant not whitelisted.");
             }
-            //3. Client ID Whitelisting
+            //3. Client ID Whitelisting: Added 2 seperate service for client, only reason i did this if to follow the task given word for word.
+            //I would prefer to create one service that responds to one entity and contains all the logic for that entity, for example ClientService
+            //with service method  GetClientAsync(), IsClientIdWhitelistedAsync()
             //3.1 "The first service accepts TenantId and DocumentId as inputs and returns the corresponding ClientId and ClientVAT"
             //Returned as stated in the task  and I UNERSTOOD as ClientId and ClientVAT, this does go with the principal of minimal exposure
             //but i would have preferr ed to have returned the  whole Client object found.
-            var client = await _clientService.GetClientAsync(tenantId, documentId);
+            var client = await _getClientService.GetClientAsync(tenantId, documentId);
 
             //3.2 Added the response that the desired client was not found, 
             //this is not required in the task directly, but I consider it a correct check
             if (client == null){
                 return NotFound("Client not found.");
             }
-            else if(!await _clientService.IsClientIdWhitelistedAsync(tenantId, client.Value.ClientId))
+            else if(!await _isClientWhiteListedService.IsClientIdWhitelistedAsync(tenantId, client.Value.ClientId))
             {
                 return StatusCode(StatusCodes.Status403Forbidden, "Client not whitelisted.");
             }
@@ -98,17 +103,18 @@ namespace FinancialDocumentApi.Controllers
             //8. Financial Data Anonymization
             var anonymizedFinancialDocument = _financialDocumentService.AnonymizeDocumentAsync(financialDocument, productCode);
 
-            //Return Response
+           
             var response = new
             {
-                data = anonymizedFinancialDocument, //will need to find a way to see if it hashed and anonymized
+                data = anonymizedFinancialDocument, 
+                //7. Enrich Response Model
                 company = new 
                 {
                     registrationNumber = company.Value.RegistrationNumber,
                     companyType = company.Value.CompanyType
                 }
             };
-
+            //9. Return Response:
             return Ok(response);
         }
     }

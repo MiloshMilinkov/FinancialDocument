@@ -5,14 +5,13 @@ using System.Threading.Tasks;
 using Core.Entities;
 using Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
-
-namespace FinancialDocumentApi.Services
+namespace FinancialDocumentApi.Services.Interfaces
 {
-    public class ClientService : IClientService
+    public class GetClientService : IGetClientService
     {
         private readonly IClientRepository _clientRepository;
 
-        public ClientService(IClientRepository clientRepository)
+        public GetClientService(IClientRepository clientRepository)
         {
             _clientRepository = clientRepository;
         }
@@ -24,11 +23,6 @@ namespace FinancialDocumentApi.Services
                 return (client.Id, client.ClientVAT);
             }
             return null;
-        }
-
-        public async Task<bool> IsClientIdWhitelistedAsync(int tenantId, int clientId)
-        {
-            return await _clientRepository.IsClientIdWhitelistedAsync(tenantId, clientId);
         }
     }
 }

@@ -6,9 +6,8 @@ using Core.Entities;
 
 namespace FinancialDocumentApi.Services
 {
-    public interface IClientService
+    public interface IIsClientWhiteListedService
     {
-        Task<(int ClientId, string ClientVAT)?> GetClientAsync(int tenantId, int documentId);
         Task<bool> IsClientIdWhitelistedAsync(int tenantId, int clientId);
     }
 }
