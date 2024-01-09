@@ -9,12 +9,19 @@
         "Id": 2,
         "ClientVAT": "VAT456",
         "RegistrationNumber": "Reg1002",
-        "CompanyType": "medium"
+        "CompanyType": "small"
     },
     {
         "Id": 3,
         "ClientVAT": "VAT789",
         "RegistrationNumber": "Reg1003",
         "CompanyType": "medium"
+    }
+    ,
+    {
+        "Id": 4,
+        "ClientVAT": "VAT790",
+        "RegistrationNumber": "Reg1003",
+        "CompanyType": "small"
     }
 ]

@@ -4,13 +4,20 @@
         "ProductCode": "ProductA",
         "IsSupported": true,
         "FinancialDocumentTemplate":  
-        "{\"fields\": {\"AccountNumber\": {\"include\": true, \"anonymize\": \"hash\"}, \"Balance\": {\"include\": true, \"anonymize\": \"none\"}, \"Transactions\": {\"include\": true, \"anonymize\": \"none\"} }}"
+        "{\"fields\": {\"AccountNumber\": {\"include\": true, \"anonymize\": \"hash\"}, \"Balance\": {\"include\": true, \"anonymize\": \"none\"}, \"Transactions\": {\"include\": true, \"anonymize\": \"none\", \"subFields\": {\"TransactionId\": {\"include\": true, \"anonymize\": \"mask\"},\"Amount\": {\"include\": true, \"anonymize\": \"none\"},\"Date\": {\"include\": true, \"anonymize\": \"none\"},\"Description\": {\"include\": true, \"anonymize\": \"mask\"},\"Category\": {\"include\": true, \"anonymize\": \"none\"}}} }}"
     },
     {
         "Id": 2,
         "ProductCode": "ProductB",
         "IsSupported": true,
         "FinancialDocumentTemplate": 
-        "{\"fields\": {\"AccountNumber\": {\"include\": true, \"anonymize\": \"hash\"}, \"Balance\": {\"include\": true, \"anonymize\": \"none\"}, \"Transactions\": {\"include\": true, \"anonymize\": \"none\"} }}"
+        "{\"fields\": {\"AccountNumber\": {\"include\": true, \"anonymize\": \"hash\"}, \"Balance\": {\"include\": true, \"anonymize\": \"none\"}, \"Transactions\": {\"include\": true, \"anonymize\": \"none\", \"subFields\": {\"TransactionId\": {\"include\": true, \"anonymize\": \"mask\"},\"Amount\": {\"include\": true, \"anonymize\": \"none\"},\"Date\": {\"include\": true, \"anonymize\": \"none\"},\"Description\": {\"include\": true, \"anonymize\": \"none\"},\"Category\": {\"include\": true, \"anonymize\": \"none\"}}} }}"
+    },
+    {
+        "Id": 3,
+        "ProductCode": "ProductC",
+        "IsSupported": false,
+        "FinancialDocumentTemplate": 
+        "{\"fields\": {\"AccountNumber\": {\"include\": true, \"anonymize\": \"hash\"}, \"Balance\": {\"include\": true, \"anonymize\": \"none\"}, \"Transactions\": {\"include\": true, \"anonymize\": \"none\", \"subFields\": {\"TransactionId\": {\"include\": true, \"anonymize\": \"hash\"},\"Amount\": {\"include\": true, \"anonymize\": \"none\"},\"Date\": {\"include\": true, \"anonymize\": \"none\"},\"Description\": {\"include\": true, \"anonymize\": \"mask\"},\"Category\": {\"include\": true, \"anonymize\": \"none\"}}} }}"
     }
 ]

@@ -82,15 +82,49 @@ namespace FinancialDocumentApi.Services
         {
             if (ShouldIncludeField(templateJson, "Transactions") && document.Transactions != null)
             {
+                JObject transactionsConfig = templateJson["fields"]?["Transactions"]?["subFields"] as JObject;
                 return document.Transactions.Select(transaction =>
                 {
                     var transactionDto = _mapper.Map<TransactionDTO>(transaction);
-                    var anonymizationType = GetAnonymizationType(templateJson, "TransactionId");
-                    transactionDto.TransactionId = ApplyAnonymization(transaction.TransactionId, anonymizationType);
+                    ApplyTransactionSubFieldAnonymization(transactionDto, transactionsConfig);
                     return transactionDto;
                 }).ToList();
             }
             return Enumerable.Empty<TransactionDTO>();
+        }
+        private void ApplyTransactionSubFieldAnonymization(TransactionDTO transactionDto, JObject transactionsConfig)
+        {
+            if (transactionsConfig != null)
+            {
+                foreach (var field in transactionsConfig.Properties())
+                {
+                    var fieldName = field.Name;
+                    var fieldConfig = field.Value as JObject;
+                    if (fieldConfig != null)
+                    {
+                        var anonymizationType = fieldConfig.Value<string>("anonymize");
+
+                        switch (fieldName)
+                        {
+                            case "TransactionId":
+                                transactionDto.TransactionId = ApplyAnonymization(transactionDto.TransactionId, anonymizationType);
+                                break;
+                            case "Amount":
+                                // Assuming Amount is a decimal, it should not be anonymized with hash/mask.
+                                break;
+                            case "Date":
+                                // Date handling if needed.
+                                break;
+                            case "Description":
+                                transactionDto.Description = ApplyAnonymization(transactionDto.Description, anonymizationType);
+                                break;
+                            case "Category":
+                                // Category handling if needed.
+                                break;
+                        }
+                    }
+                }
+            }
         }
 
         // Constructs the ....(See if more fields are needed,follow the logic from above.)
@@ -109,14 +143,6 @@ namespace FinancialDocumentApi.Services
         {
             return template["fields"]?[fieldName]?.Value<string>("anonymize");
         }
-
-        //Retrive info of what cield should be incldued or not
-        public bool ShouldIncludeField(JObject template, string fieldName)
-        {
-            var fieldTemplate = template["fields"]?[fieldName];
-            return fieldTemplate != null && fieldTemplate.Value<bool>("include");
-        }
-
         public bool ShouldAnonymizeField(JObject template, string fieldName, out string anonymizationType)
         {
             anonymizationType = null;
@@ -129,6 +155,14 @@ namespace FinancialDocumentApi.Services
 
             return false;
         }
+
+        //Retrive info of what cield should be incldued or not
+        public bool ShouldIncludeField(JObject template, string fieldName)
+        {
+            var fieldTemplate = template["fields"]?[fieldName];
+            return fieldTemplate != null && fieldTemplate.Value<bool>("include");
+        }
+
         
         private string HashValue(string value)
         {

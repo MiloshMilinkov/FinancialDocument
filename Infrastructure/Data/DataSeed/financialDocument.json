@@ -7,5 +7,14 @@
         "Balance": 42331.12,
         "Currency": "EUR"
         
+    },
+    {
+        "Id": 102,
+        "TenantId": 2,
+        "ProductId": 2,
+        "AccountNumber": "123123",
+        "Balance": 53342.52,
+        "Currency": "HUF"
+        
     }
 ]

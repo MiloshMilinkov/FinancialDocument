@@ -5,10 +5,14 @@
     },
     {
         "Id": 2,
-        "IsWhitelisted": false
+        "IsWhitelisted": true
     },
     {
         "Id": 3,
         "IsWhitelisted": true
+    },
+    {
+        "Id": 4,
+        "IsWhitelisted": false
     }
 ]

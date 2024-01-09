@@ -16,8 +16,15 @@
     {
         "Id": 3,
         "TenantId": 2,
-        "DocumentId": 103,
+        "DocumentId": 102,
         "ClientVAT": "VAT789",
+        "IsWhitelisted": true
+    },
+    {
+        "Id": 4,
+        "TenantId": 3,
+        "DocumentId": 102,
+        "ClientVAT": "VAT790",
         "IsWhitelisted": true
     }
 ]

@@ -16,5 +16,23 @@
         "Date": "2016-04-24",
         "Description": "Grocery shopping",
         "Category": "Food & Dining"
+    },
+    {
+        "Id": 3,
+        "FinancialDocumentId": 102,
+        "TransactionId": "4345",
+        "Amount": 166.95,
+        "Date": "2015-04-01",
+        "Description": "Grocery shopping",
+        "Category": "Food & Dining"
+    },
+    {
+        "Id": 4,
+        "FinancialDocumentId": 102,
+        "TransactionId": "1234",
+        "Amount": 6.58,
+        "Date": "2016-04-24",
+        "Description": "Grocery shopping",
+        "Category": "Food & Dining"
     }
 ]
