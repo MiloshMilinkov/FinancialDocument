@@ -23,11 +23,18 @@ namespace FinancialDocumentApi.Services
             _financialDocumentRepository = financialDocumentRepository;
             _mapper = mapper;
         }
-        public async Task<FinancialDocumentDTO?> RetrieveAndAnonymizeDocumentAsync(int tenantId, int documentId, string productCode)
+        public async Task<FinancialDocument?> RetriveDocumentAsync(int tenantId, int documentId)
         {
-            // Retrieve the financial document based on tenantId and documentId.
-            // If the document is not found or product code does not match, return null(test error handling).
             var financialDocument = await _financialDocumentRepository.GetFinancialDocumentAsync(tenantId, documentId);
+            if (financialDocument == null)
+                return null;
+            return financialDocument;
+        }
+
+        public  FinancialDocumentDTO? AnonymizeDocumentAsync(FinancialDocument financialDocument, string productCode)
+        {
+            // Accept the financial document retrived based on tenantId and documentId.
+            // If the document is null code does not match, return null.
             if (financialDocument == null || financialDocument.Product?.ProductCode != productCode)
                 return null;
 
@@ -37,7 +44,7 @@ namespace FinancialDocumentApi.Services
                     : new JObject();
             return _mapper.Map<FinancialDocumentDTO>(ConstructDTO(financialDocument, templateJson));
         }
-
+        //Construct a reponse in the form of a DTO as a better practice of what the backend sends as a  response to a request.
         private FinancialDocumentDTO ConstructDTO(FinancialDocument document, JObject templateJson)
         {
             var dto = new FinancialDocumentDTO();

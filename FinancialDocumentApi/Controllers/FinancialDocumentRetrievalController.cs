@@ -70,7 +70,7 @@ namespace FinancialDocumentApi.Controllers
             //3.2 Added the response that the desired client was not found, 
             //this is not required in the task directly, but I consider it a correct check
             if (client == null){
-                return StatusCode(StatusCodes.Status404NotFound, "Client not found.");
+                return NotFound("Client not found.");
             }
             else if(!await _clientService.IsClientIdWhitelistedAsync(tenantId, client.Value.ClientId))
             {
@@ -87,20 +87,25 @@ namespace FinancialDocumentApi.Controllers
             {
                 return StatusCode(StatusCodes.Status403Forbidden, "Company type check failed.");
             }
-            //Retrieve Financial Document, Anonymization adn DTO mapping
-            var financialDocument = await _financialDocumentService.RetrieveAndAnonymizeDocumentAsync(tenantId, documentId, productCode);
+            //6. Retrieve Financial Document.
+            //If the task involved working directly with a json object and returning a string that is serialized to json in order to later manipulate it, 
+            //I did not see the need for it and any advantage compared to working with class objects.
+            var financialDocument = await _financialDocumentService.RetriveDocumentAsync(tenantId, documentId);
             if (financialDocument == null)
             {
                 return NotFound("Financial document not found.");
             }
+            //8. Financial Data Anonymization
+            var anonymizedFinancialDocument = _financialDocumentService.AnonymizeDocumentAsync(financialDocument, productCode);
+
             //Return Response
             var response = new
             {
-                data = financialDocument, //will need to find a way to see if it hashed and anonymized
+                data = anonymizedFinancialDocument, //will need to find a way to see if it hashed and anonymized
                 company = new 
                 {
-                    // registrationNumber = company.RegistrationNumber,
-                    // companyType = company.CompanyType
+                    registrationNumber = company.Value.RegistrationNumber,
+                    companyType = company.Value.CompanyType
                 }
             };
 
