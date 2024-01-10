@@ -7,6 +7,7 @@ using AutoMapper;
 using Core.Entities;
 using Core.Interfaces;
 using FinancialDocumentApi.DTOs;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace FinancialDocumentApi.Services
@@ -26,11 +27,9 @@ namespace FinancialDocumentApi.Services
         
         // Asynchronously retrieves a financial document based on tenantId and documentId.
         // if document null, return a null and a NotFound.
-        public async Task<FinancialDocument?> RetriveDocumentAsync(int tenantId, int documentId)
+        public async Task<FinancialDocument> RetriveDocumentAsync(int tenantId, int documentId)
         {
             var financialDocument = await _financialDocumentRepository.GetFinancialDocumentAsync(tenantId, documentId);
-            if (financialDocument == null)
-                return null;
             return financialDocument;
         }
 
@@ -43,9 +42,7 @@ namespace FinancialDocumentApi.Services
                 return null;
 
             // Parse the document template to a JObject.
-            var templateJson = financialDocument.Product?.FinancialDocumentTemplate != null 
-                    ? JObject.Parse(financialDocument.Product.FinancialDocumentTemplate)
-                    : new JObject();
+            var templateJson = ParseTemplateJson(financialDocument.Product.FinancialDocumentTemplate);
                     
             // Maps the financial document to a DTO, applying anonymization as needed.
             return _mapper.Map<FinancialDocumentDTO>(ConstructDTO(financialDocument, templateJson));
@@ -54,11 +51,12 @@ namespace FinancialDocumentApi.Services
         // Method to construct a FinancialDocumentDTO from a FinancialDocument and template JSON.
         private FinancialDocumentDTO ConstructDTO(FinancialDocument document, JObject templateJson)
         {
-            var dto = new FinancialDocumentDTO();
-            dto.AccountNumber = ConstructAccountNumber(document, templateJson);
-            dto.Balance = ConstructBalance(document, templateJson);
-            dto.Transactions = ConstructTransactions(document, templateJson);
-            return dto;
+            return new FinancialDocumentDTO
+            {
+                AccountNumber = ConstructAccountNumber(document, templateJson),
+                Balance = ConstructBalance(document, templateJson),
+                Transactions = ConstructTransactions(document, templateJson)
+            };
         }
 
         // Constructs the account number field for the DTO, applying anonymization as configured in the template.
@@ -75,13 +73,13 @@ namespace FinancialDocumentApi.Services
         // Constructs the balance field for the DTO, applying anonymization as configuredin the template.
         private decimal? ConstructBalance(FinancialDocument document, JObject templateJson)
         {
-            if (ShouldIncludeField(templateJson, "Balance"))
-            {
-                var anonymizationType = GetAnonymizationType(templateJson, "Balance");
-                var balance = ApplyAnonymization(document.Balance.ToString(), anonymizationType);
-                return decimal.Parse(balance); // Add error handling for parsing
-            }
-            return null;
+            if (!ShouldIncludeField(templateJson, "Balance")){
+                return null;
+            } 
+            var anonymizationType = GetAnonymizationType(templateJson, "Balance");
+            var balance = ApplyAnonymization(document.Balance.ToString(), anonymizationType);
+            return decimal.Parse(balance); // Add error handling for parsing
+            
         }
 
         // Constructs the transactions field for the DTO, applying anonymization as configured in the template.
@@ -93,25 +91,19 @@ namespace FinancialDocumentApi.Services
             }   
                 // Retrieves configuration for each sub-field of transactions. 
                 // This goes beyond the needed and showcassed task in maybe uneeded ground.
-                JObject transactionsConfig = templateJson["fields"]?["Transactions"]?["subFields"] as JObject;
-
-                // Maps and anonymizes each transaction according to the configuration.
-                return document.Transactions.Select(transaction =>
-                {
-                    var transactionDto = _mapper.Map<TransactionDTO>(transaction);
-                    ApplyTransactionSubFieldAnonymization(transactionDto, transactionsConfig);
-                    return transactionDto;
-                }).ToList();
+                var transactionsConfig = GetTransactionConfig(templateJson);
+                return document.Transactions.Select(transaction => AnonymizeTransactionIfNeeded(transaction, transactionsConfig)).ToList();
         }
 
         
         // Applies anonymization to sub-fields of a transaction as set in the tempalte configuration.
-        private void ApplyTransactionSubFieldAnonymization(TransactionDTO transactionDto, JObject transactionsConfig)
+        private TransactionDTO  AnonymizeTransactionIfNeeded(Transaction transaction, JObject transactionsConfig)
         {   
-            if (transactionDto == null || transactionsConfig == null)
-            {
-                return;
+            var transactionDto = _mapper.Map<TransactionDTO>(transaction);
+            if (transactionsConfig == null){
+                return transactionDto;
             }
+                
             foreach (var field in transactionsConfig.Properties())
             {
                 var fieldName = field.Name;
@@ -141,6 +133,7 @@ namespace FinancialDocumentApi.Services
                     }
                 }
             }
+            return transactionDto;
             
         }
 
@@ -158,30 +151,13 @@ namespace FinancialDocumentApi.Services
         // Retrieves the type of anonymization for a given field from the template.
         private string GetAnonymizationType(JObject template, string fieldName)
         {
-            return template?["fields"]?[fieldName]?.Value<string>("anonymize") ?? "";
-        }
-
-         // Determines if a field should be included and anonymized based on the template.
-        public bool ShouldAnonymizeField(JObject template, string fieldName, out string anonymizationType)
-        {
-            anonymizationType = "";
-            if (template == null) return false;
-
-            var fieldTemplate = template["fields"]?[fieldName];
-            if (fieldTemplate != null && fieldTemplate.Value<bool>("include"))
-            {
-                anonymizationType = fieldTemplate.Value<string>("anonymize");
-                return !string.IsNullOrEmpty(anonymizationType);
-            }
-
-            return false;
+            return template.SelectToken($"fields.{fieldName}.anonymize")?.ToString() ?? "";
         }
 
         // Determines if a field should be included in the DTO based on the template.
         public bool ShouldIncludeField(JObject template, string fieldName)
         {
-            var fieldTemplate = template["fields"]?[fieldName];
-            return fieldTemplate != null && fieldTemplate.Value<bool>("include");
+            return template.SelectToken($"fields.{fieldName}.include")?.ToObject<bool>() ?? false;
         }
 
         // Generates a hash value for a given string.
@@ -192,6 +168,22 @@ namespace FinancialDocumentApi.Services
                 var hashBytes = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(value));
                 return Convert.ToHexString(hashBytes); 
             }
+        }
+        private JObject ParseTemplateJson(string template)
+        {
+            try
+            {
+                return !string.IsNullOrEmpty(template) ? JObject.Parse(template) : new JObject();
+            }
+            catch (JsonReaderException)
+            {
+                return new JObject();
+            }
+        }
+
+        private JObject GetTransactionConfig(JObject templateJson)
+        {
+            return templateJson.SelectToken("fields.Transactions.subFields") as JObject ?? new JObject();
         }
     }
 }

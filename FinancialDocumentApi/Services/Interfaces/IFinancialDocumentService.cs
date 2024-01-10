@@ -9,7 +9,7 @@ namespace FinancialDocumentApi.Services
 {
     public interface IFinancialDocumentService
     {
-        Task<FinancialDocument?> RetriveDocumentAsync(int tenantId, int documentId);
+        Task<FinancialDocument> RetriveDocumentAsync(int tenantId, int documentId);
         FinancialDocumentDTO? AnonymizeDocumentAsync(FinancialDocument financialDocument, string productCode);
     }
 }
